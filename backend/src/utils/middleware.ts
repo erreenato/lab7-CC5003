@@ -92,6 +92,46 @@ export const withUser = async (
   }
 };
 
-// TODO (P5): withOptionalUser
+// P5: Middleware con autenticación opcional
+export const withOptionalUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  const token = req.cookies?.token;
+
+  // Si no viene cookie de token, continuar como invitado/anónimo
+  if (!token) {
+    next();
+    return;
+  }
+
+  // Si SI viene cookie, se valida exactamente igual que en withUser
+  try {
+    const csrfHeader = req.headers["x-csrf-token"];
+    if (!csrfHeader) {
+      res.status(401).json({ error: "csrf header missing" });
+      return;
+    }
+
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error("JWT_SECRET environment variable is not defined");
+    }
+
+    const decodedToken = jwt.verify(token, secret) as CustomJwtPayload;
+
+    if (!decodedToken.csrf || decodedToken.csrf !== csrfHeader) {
+      res.status(401).json({ error: "invalid csrf token" });
+      return;
+    }
+
+    req.userId = decodedToken.id;
+    next();
+  } catch (error) {
+    // Si la cookie trae un token inválido o expirado, pasa el error al errorHandler (401)
+    next(error);
+  }
+};
 
 export default { requestLogger, unknownEndpoint, errorHandler };

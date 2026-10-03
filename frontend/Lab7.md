@@ -11,7 +11,7 @@
     -  Agregar el campo `user` al esquema `postSchema` referenciando al modelo `'User'` (`ref: "User"`) sin la restricción `required` para permitir publicaciones anónimas.
 
 
-## 📝 Checklist — P2: Endpoints de Usuarios (`backend/src/controllers/users.ts/ - api/users`)
+## 📝 Checklist — P2: Endpoints de Usuarios (`backend/src/controllers/users.ts/` - `api/users`)
 
 -  **Ruta `GET /api/users`**
     -  Retornar la lista completa de usuarios registrados.
@@ -22,7 +22,7 @@
     -  Validar unicidad de `email` informando si ya existe (error `400`).
     -  Generar el hash de la contraseña usando `bcrypt` antes de guardar.
 
-## 📝 Checklist — P3: Autenticación e Inicio de Sesión (`backend/src/controllers/login.ts/ - POST /api/login`)
+## 📝 Checklist — P3: Autenticación e Inicio de Sesión (`backend/src/controllers/login.ts/` - `POST /api/login`)
 
 - **Validación de Credenciales**
   -  Buscar al usuario por `username` y verificar hash con `bcrypt.compare`.
@@ -42,9 +42,20 @@
     -  Validar JWT firmado y comparar que `decodedToken.csrf === header['x-csrf-token']`.
     -  Inyectar `id` del usuario en `request.userId` y llamar a `next()`.
     -  Responder `401 Unauthorized` si falta token, CSRF no coincide o el JWT es inválido.
--  **Ruta `backend/src/controllers/login.ts/ - GET /api/login/me`**
+-  **Ruta `backend/src/controllers/login.ts/` - `GET /api/login/me`**
      -  Proteger con el middleware `withUser` y responder con la información del usuario autenticado.
--  **Ruta `backend/src/controllers/login.ts/ - POST /api/login/logout`**
+-  **Ruta `backend/src/controllers/login.ts/` - `POST /api/login/logout`**
     -  Borrar la cookie `token` usando `response.clearCookie('token')`.
 -  **Manejador de Errores (`backend/src/utils/middleware.ts - errorHandler`)**
     -  Capturar `TokenExpiredError` y responder con estado HTTP `401`.
+
+## 📝 Checklist — P5: Autenticación Opcional (`withOptionalUser`)
+
+-  **Middleware `withOptionalUser` (`backend/src/utils/middleware.ts`)**
+    -  Dejar continuar la petición (`next()`) si no existe la cookie `token`.
+    -  Validar token JWT y cabecera `X-CSRF-Token` si la cookie está presente.
+     -  Responder `401 Unauthorized` si la cookie trae un token inválido o expirado.
+-  **Creación de Threads y Comentarios (`backend/src/controllers/login.ts/` - `POST /api/threads` y `POST /api/threads/:id`)**
+    -  Proteger ambas rutas con el middleware `withOptionalUser`.
+    -  **Con Sesión:** Usar el `username` del usuario logueado como `author`, guardar el `_id` en el campo `user` e ignorar el `author` del cuerpo.
+    -  **Sin Sesión:** Usar el `author` proveniente del cuerpo o asignar `"Anónimo"` si no se envía.
