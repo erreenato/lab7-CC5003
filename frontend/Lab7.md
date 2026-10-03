@@ -34,3 +34,17 @@
     -  Adjuntar el JWT en la cookie `httpOnly` llamada `token`.
     -  Adjuntar el token CSRF en el header `X-CSRF-Token`.
     -  Retornar el `username` en el cuerpo del JSON con estado `200 OK`.
+
+## 📝 Checklist — P4: Middleware `withUser`, Session `/me` & Logout
+
+-  **Middleware `withUser` (`backend/src/utils/middleware.ts`)**
+    -  Verificar presencia de la cookie `token` y la cabecera `X-CSRF-Token`.
+    -  Validar JWT firmado y comparar que `decodedToken.csrf === header['x-csrf-token']`.
+    -  Inyectar `id` del usuario en `request.userId` y llamar a `next()`.
+    -  Responder `401 Unauthorized` si falta token, CSRF no coincide o el JWT es inválido.
+-  **Ruta `backend/src/controllers/login.ts/ - GET /api/login/me`**
+     -  Proteger con el middleware `withUser` y responder con la información del usuario autenticado.
+-  **Ruta `backend/src/controllers/login.ts/ - POST /api/login/logout`**
+    -  Borrar la cookie `token` usando `response.clearCookie('token')`.
+-  **Manejador de Errores (`backend/src/utils/middleware.ts - errorHandler`)**
+    -  Capturar `TokenExpiredError` y responder con estado HTTP `401`.

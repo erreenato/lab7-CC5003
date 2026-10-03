@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { withUser } from "../utils/middleware";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
@@ -52,14 +53,20 @@ loginRouter.post("/", async (request, response) => {
   response.status(200).json({ username: user.username });
 });
 
-// TODO (P4): usuario de la sesión actual (protegido con withUser).
-loginRouter.get("/me", async (request, response) => {
-  response.status(501).json({ error: "not implemented" });
+// GET /api/login/me - Obtiene la sesión actual
+loginRouter.get("/me", withUser, async (request, response) => {
+  const user = await User.findById(request.userId);
+  if (!user) {
+    response.status(404).json({ error: "user not found" });
+    return;
+  }
+  response.json(user);
 });
 
-// TODO (P4): cerrar sesión.
-loginRouter.post("/logout", async (request, response) => {
-  response.status(501).json({ error: "not implemented" });
+// POST /api/login/logout - Cierra la sesión eliminando la cookie
+loginRouter.post("/logout", (_request, response) => {
+  response.clearCookie("token");
+  response.status(200).json({ message: "logged out successfully" });
 });
 
 export default loginRouter;
