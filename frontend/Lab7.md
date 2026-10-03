@@ -59,3 +59,17 @@
     -  Proteger ambas rutas con el middleware `withOptionalUser`.
     -  **Con Sesión:** Usar el `username` del usuario logueado como `author`, guardar el `_id` en el campo `user` e ignorar el `author` del cuerpo.
     -  **Sin Sesión:** Usar el `author` proveniente del cuerpo o asignar `"Anónimo"` si no se envía.
+
+## 📝 Checklist — P6: Conexión Frontend & Autenticación
+
+-  **Instancia de Axios Segura (`frontend/src/utils/axiosSecure.ts`)**
+    -  Crear interceptor para incluir la cabecera `X-CSRF-Token` leyendo desde `localStorage`.
+    -  Usar `axiosSecure` para el envío de threads y comentarios.
+-  **Servicio de Login (`frontend/src/services/login.ts`)**
+    -  `login()`: Guardar el token CSRF recibido en el header hacia `localStorage`.
+    -  `restoreLogin()`: Consultar `GET /api/login/me` usando `axiosSecure`.
+    -  `logout()`: Ejecutar `POST /api/login/logout` y limpiar el `localStorage`.
+-  **Componentes e Integración**
+    -  Implementar el formulario en `pages/Login.tsx`.
+    -  Implementar botón de logout en `components/TopBar.tsx`.
+    -  Ejecutar `restoreLogin()` en un `useEffect` al montar `App.tsx` para mantener la sesión activa.

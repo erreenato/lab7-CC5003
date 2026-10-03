@@ -3,15 +3,25 @@ import Threads from './pages/Threads'
 import Thread from './pages/Thread'
 import Login from './pages/Login'
 import Register from './pages/Register'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Alert, Snackbar } from '@mui/material'
 import type { User } from './types/users'
+import loginService from './services/login'
 
 function App() {
   const [toast, setToast] = useState<{ message: string, severity: 'success' | 'error' } | null>(null)
   const [user, setUser] = useState<User | null>(null)
 
-  // TODO (P6): restaurar la sesión al montar la aplicación.
+  // P6: Restaurar la sesión al montar la aplicación
+  useEffect(() => {
+    const initAuth = async () => {
+      const loggedUser = await loginService.restoreLogin()
+      if (loggedUser) {
+        setUser(loggedUser)
+      }
+    }
+    initAuth()
+  }, [])
 
   const handleClose = () => {
     setToast(null)

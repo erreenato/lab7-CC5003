@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link as RouterLink } from 'react-router-dom'
+import { Link as RouterLink, useNavigate } from 'react-router-dom'
 import {
   Alert,
   Box,
@@ -12,6 +12,7 @@ import {
   Typography,
 } from '@mui/material'
 import type { User } from '../types/users'
+import loginService from '../services/login'
 
 interface LoginProps {
   setUser: (user: User | null) => void
@@ -21,13 +22,27 @@ const Login = ({ setUser }: LoginProps) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const navigate = useNavigate()
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    // TODO (P6): iniciar sesión, actualizar el usuario y volver a /threads.
-    // Si las credenciales son incorrectas, mostrar un error con setError.
-    setUser(null)
-    setError('Login not implemented')
+    try {
+      // 1. Iniciar sesión usando el servicio
+      const user = await loginService.login({ username, password })
+      
+      // 2. Actualizar el estado global del usuario
+      setUser(user)
+      
+      // 3. Limpiar formulario y redireccionar a /threads
+      setError('')
+      setUsername('')
+      setPassword('')
+      navigate('/threads')
+    } catch (err: any) {
+      // 4. Mostrar el mensaje de error que devuelve el backend o un texto por defecto
+      const message = err.response?.data?.error || 'Wrong credentials'
+      setError(message)
+    }
   }
 
   return (
