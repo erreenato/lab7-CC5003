@@ -1,15 +1,41 @@
-import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
 
-export interface UserData {
-  id: string;
+// Interfaz para TypeScript (opcional pero recomendada para autocompletado)
+export interface IUser {
   username: string;
   email: string;
   passwordHash: string;
 }
 
-// TODO (P1): campos, restricciones y transformación a JSON.
-const userSchema = new mongoose.Schema<UserData>({});
+const userSchema = new Schema<IUser>({
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Por favor ingresa un correo electrónico válido"],
+  },
+  passwordHash: {
+    type: String,
+    required: true,
+  },
+});
 
-const User = mongoose.model<UserData>("User", userSchema);
+// Configuración de toJSON para limpiar la salida hacia la API
+userSchema.set("toJSON", {
+  transform: (_document, returnedObject: Record<string, any>) => {
+    delete returnedObject._id;
+    delete returnedObject.__v;
+    delete returnedObject.passwordHash;
+  },
+});
+
+const User = model<IUser>("User", userSchema);
 
 export default User;
