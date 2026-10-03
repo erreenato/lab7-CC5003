@@ -11,7 +11,7 @@
     -  Agregar el campo `user` al esquema `postSchema` referenciando al modelo `'User'` (`ref: "User"`) sin la restricción `required` para permitir publicaciones anónimas.
 
 
-## 📝 Checklist — P2: Endpoints de Usuarios (`/api/users`)
+## 📝 Checklist — P2: Endpoints de Usuarios (`backend/src/controllers/users.ts/ - api/users`)
 
 -  **Ruta `GET /api/users`**
     -  Retornar la lista completa de usuarios registrados.
@@ -21,3 +21,16 @@
     -  Validar unicidad de `username` informando si ya existe (error `400`).
     -  Validar unicidad de `email` informando si ya existe (error `400`).
     -  Generar el hash de la contraseña usando `bcrypt` antes de guardar.
+
+## 📝 Checklist — P3: Autenticación e Inicio de Sesión (`backend/src/controllers/login.ts/ - POST /api/login`)
+
+- **Validación de Credenciales**
+  -  Buscar al usuario por `username` y verificar hash con `bcrypt.compare`.
+  -  Retornar `401 Unauthorized` con mensaje genérico si falla usuario o clave.
+-  **Generación de Tokens**
+    -  Generar token CSRF utilizando `crypto.randomUUID()`.
+    -  Generar JWT con `id`, `username` y `csrf` expirable en 1 hora (`1h`).
+-  **Envío de Respuesta**
+    -  Adjuntar el JWT en la cookie `httpOnly` llamada `token`.
+    -  Adjuntar el token CSRF en el header `X-CSRF-Token`.
+    -  Retornar el `username` en el cuerpo del JSON con estado `200 OK`.

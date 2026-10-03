@@ -28,7 +28,7 @@ app.use(middleware.requestLogger);
 
 app.use("/api", postsRouter);
 app.use("/api/users", usersRouter); // Ya venía en el template, pero para la P2 es importante saber que se importa aquí y se usa como middleware para la ruta /api/users
-app.use("/api/login", loginRouter);
+app.use("/api/login", loginRouter); // Ya venía en el template, pero para la P3 es importante saber que se importa aquí y se usa como middleware para la ruta /api/login
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
